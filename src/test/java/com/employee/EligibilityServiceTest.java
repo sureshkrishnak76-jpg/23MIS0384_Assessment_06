@@ -1,14 +1,15 @@
 package com.employee;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class EligibilityServiceTest {
 
-    private final EligibilityService service = new EligibilityService();
+    private final EligibilityService service =
+            new EligibilityService();
 
-    // Test 1: Fully eligible employee
+    // 1. Positive test - fully eligible employee
     @Test
     void testEligibleEmployee() {
 
@@ -23,13 +24,22 @@ public class EligibilityServiceTest {
         );
 
         EligibilityResult result =
-                service.checkEligibility(employee, "Confidential");
+                service.checkEligibility(
+                        employee,
+                        "Confidential"
+                );
 
-        assertEquals("Eligible", result.getStatus());
-        assertTrue(result.getReasons().isEmpty());
+        assertEquals(
+                "Eligible",
+                result.getStatus()
+        );
+
+        assertTrue(
+                result.getReasons().isEmpty()
+        );
     }
 
-    // Test 2: Boundary age - exactly 21
+    // 2. Boundary test - exactly 21 years old
     @Test
     void testMinimumAgeBoundary() {
 
@@ -44,12 +54,18 @@ public class EligibilityServiceTest {
         );
 
         EligibilityResult result =
-                service.checkEligibility(employee, "Confidential");
+                service.checkEligibility(
+                        employee,
+                        "Confidential"
+                );
 
-        assertEquals("Eligible", result.getStatus());
+        assertEquals(
+                "Eligible",
+                result.getStatus()
+        );
     }
 
-    // Test 3: Under minimum age
+    // 3. Negative test - employee below minimum age
     @Test
     void testUnderMinimumAge() {
 
@@ -64,17 +80,24 @@ public class EligibilityServiceTest {
         );
 
         EligibilityResult result =
-                service.checkEligibility(employee, "Confidential");
+                service.checkEligibility(
+                        employee,
+                        "Confidential"
+                );
 
-        assertEquals("Not Eligible", result.getStatus());
+        assertEquals(
+                "Not Eligible",
+                result.getStatus()
+        );
 
         assertTrue(
-                result.getReasons()
-                        .contains("Employee must be at least 21 years old.")
+                result.getReasons().contains(
+                        "Employee must be at least 21 years old."
+                )
         );
     }
 
-    // Test 4: Unauthorized department
+    // 4. Negative test - unauthorized department
     @Test
     void testUnauthorizedDepartment() {
 
@@ -89,17 +112,24 @@ public class EligibilityServiceTest {
         );
 
         EligibilityResult result =
-                service.checkEligibility(employee, "Confidential");
+                service.checkEligibility(
+                        employee,
+                        "Confidential"
+                );
 
-        assertEquals("Not Eligible", result.getStatus());
+        assertEquals(
+                "Not Eligible",
+                result.getStatus()
+        );
 
         assertTrue(
-                result.getReasons()
-                        .contains("Employee department is not authorized.")
+                result.getReasons().contains(
+                        "Employee department is not authorized."
+                )
         );
     }
 
-    // Test 5: Invalid employee ID
+    // 5. Negative test - invalid employee ID
     @Test
     void testInvalidEmployeeId() {
 
@@ -114,17 +144,24 @@ public class EligibilityServiceTest {
         );
 
         EligibilityResult result =
-                service.checkEligibility(employee, "Confidential");
+                service.checkEligibility(
+                        employee,
+                        "Confidential"
+                );
 
-        assertEquals("Not Eligible", result.getStatus());
+        assertEquals(
+                "Not Eligible",
+                result.getStatus()
+        );
 
         assertTrue(
-                result.getReasons()
-                        .contains("Employee ID is invalid.")
+                result.getReasons().contains(
+                        "Employee ID is invalid."
+                )
         );
     }
 
-    // Test 6: Inactive employee
+    // 6. Negative test - inactive employee
     @Test
     void testInactiveEmployee() {
 
@@ -139,19 +176,24 @@ public class EligibilityServiceTest {
         );
 
         EligibilityResult result =
-                service.checkEligibility(employee, "Confidential");
+                service.checkEligibility(
+                        employee,
+                        "Confidential"
+                );
 
-        assertEquals("Not Eligible", result.getStatus());
+        assertEquals(
+                "Not Eligible",
+                result.getStatus()
+        );
 
         assertTrue(
-                result.getReasons()
-                        .contains(
-                            "Employee does not have active employment status."
-                        )
+                result.getReasons().contains(
+                        "Employee does not have active employment status."
+                )
         );
     }
 
-    // Test 7: Multiple failures
+    // 7. Negative test - multiple failures
     @Test
     void testMultipleFailures() {
 
@@ -166,30 +208,54 @@ public class EligibilityServiceTest {
         );
 
         EligibilityResult result =
-                service.checkEligibility(employee, "Secret");
+                service.checkEligibility(
+                        employee,
+                        "Secret"
+                );
 
-        assertEquals("Not Eligible", result.getStatus());
+        assertEquals(
+                "Not Eligible",
+                result.getStatus()
+        );
 
-        // Verify ALL applicable reasons are reported
-        assertEquals(5, result.getReasons().size());
+        // Verify all applicable rejection reasons
+        assertEquals(
+                5,
+                result.getReasons().size()
+        );
 
-        assertTrue(result.getReasons().contains(
-                "Employee must be at least 21 years old."));
+        assertTrue(
+                result.getReasons().contains(
+                        "Employee must be at least 21 years old."
+                )
+        );
 
-        assertTrue(result.getReasons().contains(
-                "Employee department is not authorized."));
+        assertTrue(
+                result.getReasons().contains(
+                        "Employee department is not authorized."
+                )
+        );
 
-        assertTrue(result.getReasons().contains(
-                "Employee does not have active employment status."));
+        assertTrue(
+                result.getReasons().contains(
+                        "Employee does not have active employment status."
+                )
+        );
 
-        assertTrue(result.getReasons().contains(
-                "Employee ID is invalid."));
+        assertTrue(
+                result.getReasons().contains(
+                        "Employee ID is invalid."
+                )
+        );
 
-        assertTrue(result.getReasons().contains(
-                "Security clearance is insufficient for requested access."));
+        assertTrue(
+                result.getReasons().contains(
+                        "Security clearance is insufficient for requested access."
+                )
+        );
     }
 
-    // Test 8: Conditional eligibility
+    // 8. Conditional eligibility - insufficient security clearance
     @Test
     void testConditionallyEligibleEmployee() {
 
@@ -204,10 +270,95 @@ public class EligibilityServiceTest {
         );
 
         EligibilityResult result =
-                service.checkEligibility(employee, "Confidential");
+                service.checkEligibility(
+                        employee,
+                        "Confidential"
+                );
 
-        assertEquals("Conditionally Eligible", result.getStatus());
+        assertEquals(
+                "Conditionally Eligible",
+                result.getStatus()
+        );
 
-        assertEquals(1, result.getReasons().size());
+        assertEquals(
+                1,
+                result.getReasons().size()
+        );
+    }
+
+    // 9. Positive test - valid employee with Secret clearance
+    @Test
+    void testValidEmployeePositiveCase() {
+
+        Employee employee = new Employee(
+                "EMP009",
+                "Test Employee",
+                25,
+                "IT",
+                "Active",
+                "Secret",
+                true
+        );
+
+        EligibilityResult result =
+                service.checkEligibility(
+                        employee,
+                        "Confidential"
+                );
+
+        assertEquals(
+                "Eligible",
+                result.getStatus()
+        );
+
+        assertTrue(
+                result.getReasons().isEmpty()
+        );
+    }
+
+    // 10. Negative test - negative age exception
+    @Test
+    void testNegativeAgeException() {
+
+        Employee employee = new Employee(
+                "EMP010",
+                "Invalid Employee",
+                -5,
+                "IT",
+                "Active",
+                "Secret",
+                true
+        );
+
+        assertThrows(
+                InvalidEmployeeDataException.class,
+                () -> service.checkEligibility(
+                        employee,
+                        "Confidential"
+                )
+        );
+    }
+
+    // 11. Negative test - empty employee ID exception
+    @Test
+    void testEmptyEmployeeIdException() {
+
+        Employee employee = new Employee(
+                "",
+                "Invalid Employee",
+                25,
+                "IT",
+                "Active",
+                "Secret",
+                true
+        );
+
+        assertThrows(
+                InvalidEmployeeDataException.class,
+                () -> service.checkEligibility(
+                        employee,
+                        "Confidential"
+                )
+        );
     }
 }
