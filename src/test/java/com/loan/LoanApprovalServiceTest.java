@@ -1,15 +1,17 @@
 package com.loan;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
 
 public class LoanApprovalServiceTest {
 
     private final LoanApprovalService service =
             new LoanApprovalService();
 
-    // 1. Fully eligible customer
+    // =========================================================
+    // 1. Eligible Customer
+    // =========================================================
     @Test
     void testEligibleCustomer() {
 
@@ -18,29 +20,28 @@ public class LoanApprovalServiceTest {
                 "Arun",
                 30,
                 "ID123",
-                70000,
-                780,
-                15000
+                50000,
+                750,
+                10000
         );
 
-        LoanApplication application =
-                new LoanApplication(
-                        "L001",
-                        customer,
-                        500000
-                );
+        LoanApplication application = new LoanApplication(
+                "L001",
+                customer,
+                200000
+        );
 
         CreditAssessment result =
                 service.assessLoan(application);
 
         assertTrue(result.isApproved());
-        assertEquals(
-                "Low Risk",
-                result.getRiskClassification()
-        );
+        assertEquals("Low Risk", result.getRiskClassification());
+        assertEquals(0.20, result.getDebtToIncomeRatio(), 0.001);
     }
 
-    // 2. Minimum age boundary
+    // =========================================================
+    // 2. Minimum Age Boundary
+    // =========================================================
     @Test
     void testMinimumAgeBoundary() {
 
@@ -49,17 +50,16 @@ public class LoanApprovalServiceTest {
                 "Kumar",
                 21,
                 "ID124",
-                50000,
+                40000,
                 700,
                 10000
         );
 
-        LoanApplication application =
-                new LoanApplication(
-                        "L002",
-                        customer,
-                        200000
-                );
+        LoanApplication application = new LoanApplication(
+                "L002",
+                customer,
+                100000
+        );
 
         CreditAssessment result =
                 service.assessLoan(application);
@@ -67,39 +67,41 @@ public class LoanApprovalServiceTest {
         assertTrue(result.isApproved());
     }
 
-    // 3. Below minimum age
+    // =========================================================
+    // 3. Age Below Minimum
+    // =========================================================
     @Test
-    void testBelowMinimumAge() {
+    void testAgeBelowMinimum() {
 
         Customer customer = new Customer(
                 "C003",
                 "Ravi",
                 20,
                 "ID125",
-                50000,
+                40000,
                 700,
                 10000
         );
 
-        LoanApplication application =
-                new LoanApplication(
-                        "L003",
-                        customer,
-                        200000
-                );
+        LoanApplication application = new LoanApplication(
+                "L003",
+                customer,
+                100000
+        );
 
         CreditAssessment result =
                 service.assessLoan(application);
 
         assertFalse(result.isApproved());
-
         assertTrue(
                 result.getRejectionReason()
                         .contains("Customer age is below 21")
         );
     }
 
-    // 4. Minimum credit score boundary
+    // =========================================================
+    // 4. Minimum Credit Score Boundary
+    // =========================================================
     @Test
     void testMinimumCreditScoreBoundary() {
 
@@ -113,31 +115,31 @@ public class LoanApprovalServiceTest {
                 10000
         );
 
-        LoanApplication application =
-                new LoanApplication(
-                        "L004",
-                        customer,
-                        200000
-                );
+        LoanApplication application = new LoanApplication(
+                "L004",
+                customer,
+                100000
+        );
 
         CreditAssessment result =
                 service.assessLoan(application);
 
         assertTrue(result.isApproved());
-
         assertEquals(
                 "Medium Risk",
                 result.getRiskClassification()
         );
     }
 
-    // 5. Low credit score
+    // =========================================================
+    // 5. Credit Score Below Minimum
+    // =========================================================
     @Test
-    void testLowCreditScore() {
+    void testCreditScoreBelowMinimum() {
 
         Customer customer = new Customer(
                 "C005",
-                "Vijay",
+                "Mani",
                 30,
                 "ID127",
                 50000,
@@ -145,12 +147,11 @@ public class LoanApprovalServiceTest {
                 10000
         );
 
-        LoanApplication application =
-                new LoanApplication(
-                        "L005",
-                        customer,
-                        200000
-                );
+        LoanApplication application = new LoanApplication(
+                "L005",
+                customer,
+                100000
+        );
 
         CreditAssessment result =
                 service.assessLoan(application);
@@ -165,13 +166,15 @@ public class LoanApprovalServiceTest {
         );
     }
 
-    // 6. Maximum DTI boundary - exactly 50%
+    // =========================================================
+    // 6. Maximum DTI Boundary
+    // =========================================================
     @Test
     void testMaximumDTIBoundary() {
 
         Customer customer = new Customer(
                 "C006",
-                "Ajay",
+                "Vijay",
                 30,
                 "ID128",
                 50000,
@@ -179,32 +182,33 @@ public class LoanApprovalServiceTest {
                 25000
         );
 
-        LoanApplication application =
-                new LoanApplication(
-                        "L006",
-                        customer,
-                        200000
-                );
+        LoanApplication application = new LoanApplication(
+                "L006",
+                customer,
+                100000
+        );
 
         CreditAssessment result =
                 service.assessLoan(application);
+
+        assertTrue(result.isApproved());
 
         assertEquals(
                 0.50,
                 result.getDebtToIncomeRatio(),
                 0.001
         );
-
-        assertTrue(result.isApproved());
     }
 
-    // 7. DTI above maximum
+    // =========================================================
+    // 7. DTI Above Maximum
+    // =========================================================
     @Test
     void testDTIAboveMaximum() {
 
         Customer customer = new Customer(
                 "C007",
-                "Manoj",
+                "Ajay",
                 30,
                 "ID129",
                 50000,
@@ -212,12 +216,11 @@ public class LoanApprovalServiceTest {
                 30000
         );
 
-        LoanApplication application =
-                new LoanApplication(
-                        "L007",
-                        customer,
-                        200000
-                );
+        LoanApplication application = new LoanApplication(
+                "L007",
+                customer,
+                100000
+        );
 
         CreditAssessment result =
                 service.assessLoan(application);
@@ -232,13 +235,15 @@ public class LoanApprovalServiceTest {
         );
     }
 
-    // 8. Invalid government ID
+    // =========================================================
+    // 8. Invalid Government ID
+    // =========================================================
     @Test
     void testInvalidGovernmentId() {
 
         Customer customer = new Customer(
                 "C008",
-                "Karthik",
+                "Rahul",
                 30,
                 "",
                 50000,
@@ -246,12 +251,11 @@ public class LoanApprovalServiceTest {
                 10000
         );
 
-        LoanApplication application =
-                new LoanApplication(
-                        "L008",
-                        customer,
-                        200000
-                );
+        LoanApplication application = new LoanApplication(
+                "L008",
+                customer,
+                100000
+        );
 
         CreditAssessment result =
                 service.assessLoan(application);
@@ -264,9 +268,11 @@ public class LoanApprovalServiceTest {
         );
     }
 
-    // 9. Loan amount exceeds maximum
+    // =========================================================
+    // 9. Excessive Loan Amount
+    // =========================================================
     @Test
-    void testLoanAmountExceedsMaximum() {
+    void testExcessiveLoanAmount() {
 
         Customer customer = new Customer(
                 "C009",
@@ -278,12 +284,11 @@ public class LoanApprovalServiceTest {
                 5000
         );
 
-        LoanApplication application =
-                new LoanApplication(
-                        "L009",
-                        customer,
-                        300000
-                );
+        LoanApplication application = new LoanApplication(
+                "L009",
+                customer,
+                300000
+        );
 
         CreditAssessment result =
                 service.assessLoan(application);
@@ -298,41 +303,51 @@ public class LoanApprovalServiceTest {
         );
     }
 
-    // 10. Multiple failure reasons
+    // =========================================================
+    // 10. Multiple Failures
+    // =========================================================
     @Test
     void testMultipleFailures() {
 
         Customer customer = new Customer(
                 "C010",
-                "Ramesh",
+                "Test User",
                 20,
                 "",
-                30000,
-                550,
-                25000
+                50000,
+                600,
+                30000
         );
 
-        LoanApplication application =
-                new LoanApplication(
-                        "L010",
-                        customer,
-                        500000
-                );
+        LoanApplication application = new LoanApplication(
+                "L010",
+                customer,
+                500000
+        );
 
         CreditAssessment result =
                 service.assessLoan(application);
 
         assertFalse(result.isApproved());
 
-        String reasons =
-                result.getRejectionReason();
+        String reasons = result.getRejectionReason();
 
         assertTrue(
-                reasons.contains("Customer age is below 21")
+                reasons.contains(
+                        "Customer age is below 21"
+                )
         );
 
         assertTrue(
-                reasons.contains("Invalid government ID")
+                reasons.contains(
+                        "Invalid government ID"
+                )
+        );
+
+        assertTrue(
+                reasons.contains(
+                        "Requested loan exceeds maximum permissible loan"
+                )
         );
 
         assertTrue(
@@ -345,6 +360,62 @@ public class LoanApprovalServiceTest {
                 reasons.contains(
                         "Debt-to-income ratio exceeds 50%"
                 )
+        );
+    }
+
+    // =========================================================
+    // 11. Invalid Loan Amount Exception
+    // =========================================================
+    @Test
+    void testInvalidLoanAmountException() {
+
+        Customer customer = new Customer(
+                "C011",
+                "Test User",
+                30,
+                "ID131",
+                50000,
+                700,
+                10000
+        );
+
+        LoanApplication application = new LoanApplication(
+                "L011",
+                customer,
+                -1000
+        );
+
+        assertThrows(
+                InvalidLoanDataException.class,
+                () -> service.assessLoan(application)
+        );
+    }
+
+    // =========================================================
+    // 12. Invalid Credit Score Exception
+    // =========================================================
+    @Test
+    void testInvalidCreditScoreException() {
+
+        Customer customer = new Customer(
+                "C012",
+                "Test User",
+                30,
+                "ID132",
+                50000,
+                950,
+                10000
+        );
+
+        LoanApplication application = new LoanApplication(
+                "L012",
+                customer,
+                200000
+        );
+
+        assertThrows(
+                InvalidLoanDataException.class,
+                () -> service.assessLoan(application)
         );
     }
 }
